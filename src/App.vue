@@ -131,7 +131,9 @@ function handleRowClick(row: typeof tableData[0]) {
             基于原子设计理念的现代化 Vue 3 组件库。无障碍访问、高度可定制、精心打造。
           </p>
           <div class="flex flex-wrap gap-4">
-            <NButton size="lg" @click="showMessage('success', '开始使用 Nexa UI！')">🚀 快速开始</NButton>
+            <a href="http://localhost:3001/guide/getting-started.html" target="_blank">
+              <NButton size="lg">🚀 快速开始</NButton>
+            </a>
             <a href="http://localhost:3001" target="_blank">
               <NButton variant="outline" size="lg">📖 查看文档</NButton>
             </a>
