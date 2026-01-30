@@ -30,7 +30,9 @@ const tabs = [
 
 const breadcrumbs = [
   { label: '首页', href: '#' },
-  { label: '组件', href: '#' },
+  { label: '产品中心', href: '#' },
+  { label: '组件库', href: '#' },
+  { label: '基础组件', href: '#' },
   { label: '按钮' },
 ]
 
@@ -140,9 +142,9 @@ function handleRowClick(row: typeof tableData[0]) {
 
     <!-- 主要内容 -->
     <main class="max-w-7xl mx-auto px-6 py-12">
-      <!-- 面包屑 -->
+      <!-- 面包屑 (响应式折叠) -->
       <div class="mb-8">
-        <NBreadcrumb :items="breadcrumbs" @click="(item) => showMessage('info', `导航到：${item.label}`)" />
+        <NBreadcrumb :items="breadcrumbs" :max-items="4" @click="(item) => showMessage('info', `导航到：${item.label}`)" />
       </div>
 
       <!-- 按钮组件展示 -->
@@ -396,9 +398,10 @@ function handleRowClick(row: typeof tableData[0]) {
         </NCard>
       </div>
 
-      <!-- 模态框 -->
-      <NModal v-model="modalOpen" title="创建新项目" size="md">
+      <!-- 模态框 (可拖拽) -->
+      <NModal v-model="modalOpen" title="创建新项目" size="md" draggable>
         <div class="space-y-4">
+          <p class="text-sm text-surface-500 mb-4">💡 提示：可以拖拽标题栏移动此窗口</p>
           <NInput v-model="projectName" label="项目名称" placeholder="请输入项目名称" />
           <NInput v-model="projectDesc" label="项目描述" placeholder="简要描述您的项目（可选）" />
         </div>

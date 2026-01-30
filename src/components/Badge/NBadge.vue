@@ -26,10 +26,17 @@ const typeClasses: Record<Status, string> = {
 }
 
 const positionClasses: Record<string, string> = {
-  'top-right': '-top-1 -right-1',
-  'top-left': '-top-1 -left-1',
-  'bottom-right': '-bottom-1 -right-1',
-  'bottom-left': '-bottom-1 -left-1',
+  'top-right': 'top-0 right-0 translate-x-1/3 -translate-y-1/3',
+  'top-left': 'top-0 left-0 -translate-x-1/3 -translate-y-1/3',
+  'bottom-right': 'bottom-0 right-0 translate-x-1/3 translate-y-1/3',
+  'bottom-left': 'bottom-0 left-0 -translate-x-1/3 translate-y-1/3',
+}
+
+const dotPositionClasses: Record<string, string> = {
+  'top-right': 'top-0 right-0',
+  'top-left': 'top-0 left-0',
+  'bottom-right': 'bottom-0 right-0',
+  'bottom-left': 'bottom-0 left-0',
 }
 
 const displayValue = computed(() => {
@@ -43,8 +50,8 @@ const displayValue = computed(() => {
 const badgeClasses = computed(() => [
   'absolute text-white text-xs font-medium',
   typeClasses[props.type],
-  positionClasses[props.position],
-  props.dot ? 'h-2 w-2 rounded-full' : 'min-w-5 h-5 px-1.5 rounded-full flex items-center justify-center',
+  props.dot ? dotPositionClasses[props.position] : positionClasses[props.position],
+  props.dot ? 'h-2.5 w-2.5 rounded-full ring-2 ring-white' : 'min-w-5 h-5 px-1.5 rounded-full flex items-center justify-center',
 ])
 </script>
 

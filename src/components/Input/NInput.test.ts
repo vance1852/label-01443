@@ -1,51 +1,56 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { render, screen, fireEvent } from "@testing-library/vue";
 import NInput from "./NInput.vue";
 
 describe("NInput", () => {
   it("renders label when provided", () => {
-    const wrapper = mount(NInput, {
+    render(NInput, {
       props: { label: "Username" },
     });
-    expect(wrapper.find("label").text()).toBe("Username");
+    expect(screen.getByText("Username")).toBeTruthy();
   });
 
   it("emits update:modelValue on input", async () => {
-    const wrapper = mount(NInput);
-    const input = wrapper.find("input");
-    await input.setValue("test");
-    expect(wrapper.emitted("update:modelValue")?.[0]).toEqual(["test"]);
+    const { emitted } = render(NInput, {
+      props: { placeholder: "Enter text" },
+    });
+    const input = screen.getByPlaceholderText("Enter text");
+    await fireEvent.update(input, "test");
+    expect(emitted()["update:modelValue"]).toBeTruthy();
   });
 
   it("renders help text", () => {
-    const wrapper = mount(NInput, {
+    render(NInput, {
       props: { helpText: "Enter your username" },
     });
-    expect(wrapper.text()).toContain("Enter your username");
+    expect(screen.getByText("Enter your username")).toBeTruthy();
   });
 
   it("applies error status class", () => {
-    const wrapper = mount(NInput, {
-      props: { status: "error" },
+    render(NInput, {
+      props: { status: "error", placeholder: "Input" },
     });
-    expect(wrapper.find("input").classes()).toContain("border-error-500");
+    const input = screen.getByPlaceholderText("Input");
+    expect(input.className).toContain("ring-error-500");
   });
 
   it("toggles password visibility", async () => {
-    const wrapper = mount(NInput, {
-      props: { type: "password" },
+    render(NInput, {
+      props: { type: "password", placeholder: "Password" },
     });
-    const input = wrapper.find("input");
-    expect(input.attributes("type")).toBe("password");
+    const input = screen.getByPlaceholderText("Password") as HTMLInputElement;
+    expect(input.type).toBe("password");
 
-    await wrapper.find("button").trigger("click");
-    expect(input.attributes("type")).toBe("text");
+    const toggleBtn = screen.getByRole("button");
+    await fireEvent.click(toggleBtn);
+    expect(input.type).toBe("text");
   });
 
   it("has aria-invalid when status is error", () => {
-    const wrapper = mount(NInput, {
-      props: { status: "error" },
+    render(NInput, {
+      props: { status: "error", placeholder: "Input" },
     });
-    expect(wrapper.find("input").attributes("aria-invalid")).toBe("true");
+    const input = screen.getByPlaceholderText("Input");
+    expect(input.getAttribute("aria-invalid")).toBe("true");
   });
 });

@@ -63,6 +63,7 @@
     "url": "https://github.com/your-org/nexa-ui"
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^6.0.3"
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vueuse/motion": "^3.0.3"
   }
 }

@@ -6,6 +6,7 @@ interface Props {
   clickable?: boolean
   bordered?: boolean
   shadow?: 'none' | 'sm' | 'md' | 'lg'
+  glass?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   clickable: false,
   bordered: false,
   shadow: 'sm',
+  glass: false,
 })
 
 const emit = defineEmits<{
@@ -27,8 +29,9 @@ const shadowClasses = {
 }
 
 const classes = computed(() => [
-  'rounded-xl bg-white overflow-hidden ring-1 ring-surface-200/80',
+  'rounded-xl overflow-hidden ring-1 ring-surface-200/80',
   'nexa-transition',
+  props.glass ? 'bg-white/70 backdrop-blur-xl' : 'bg-white',
   shadowClasses[props.shadow],
   props.hoverable && 'hover:shadow-md hover:ring-surface-300',
   props.clickable && 'cursor-pointer active:scale-[0.99]',

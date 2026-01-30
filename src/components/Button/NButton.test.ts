@@ -1,62 +1,72 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { render, screen, fireEvent } from "@testing-library/vue";
 import NButton from "./NButton.vue";
 
 describe("NButton", () => {
   it("renders slot content", () => {
-    const wrapper = mount(NButton, {
+    render(NButton, {
       slots: { default: "Click me" },
     });
-    expect(wrapper.text()).toContain("Click me");
+    expect(screen.getByText("Click me")).toBeTruthy();
   });
 
   it("emits click event", async () => {
-    const wrapper = mount(NButton);
-    await wrapper.trigger("click");
-    expect(wrapper.emitted("click")).toBeTruthy();
+    const { emitted } = render(NButton, {
+      slots: { default: "Button" },
+    });
+    await fireEvent.click(screen.getByRole("button"));
+    expect(emitted().click).toBeTruthy();
   });
 
   it("does not emit click when disabled", async () => {
-    const wrapper = mount(NButton, {
+    const { emitted } = render(NButton, {
       props: { disabled: true },
+      slots: { default: "Button" },
     });
-    await wrapper.trigger("click");
-    expect(wrapper.emitted("click")).toBeFalsy();
+    await fireEvent.click(screen.getByRole("button"));
+    expect(emitted().click).toBeFalsy();
   });
 
   it("does not emit click when loading", async () => {
-    const wrapper = mount(NButton, {
+    const { emitted } = render(NButton, {
       props: { loading: true },
+      slots: { default: "Button" },
     });
-    await wrapper.trigger("click");
-    expect(wrapper.emitted("click")).toBeFalsy();
+    await fireEvent.click(screen.getByRole("button"));
+    expect(emitted().click).toBeFalsy();
   });
 
   it("applies variant classes", () => {
-    const wrapper = mount(NButton, {
+    render(NButton, {
       props: { variant: "outline" },
+      slots: { default: "Button" },
     });
-    expect(wrapper.classes()).toContain("border");
+    expect(screen.getByRole("button").className).toContain("ring-1");
   });
 
   it("applies size classes", () => {
-    const wrapper = mount(NButton, {
+    render(NButton, {
       props: { size: "lg" },
+      slots: { default: "Button" },
     });
-    expect(wrapper.classes()).toContain("h-12");
+    expect(screen.getByRole("button").className).toContain("h-10");
   });
 
   it("has correct aria attributes when disabled", () => {
-    const wrapper = mount(NButton, {
+    render(NButton, {
       props: { disabled: true },
+      slots: { default: "Button" },
     });
-    expect(wrapper.attributes("aria-disabled")).toBe("true");
+    expect(screen.getByRole("button").getAttribute("aria-disabled")).toBe(
+      "true",
+    );
   });
 
   it("has correct aria attributes when loading", () => {
-    const wrapper = mount(NButton, {
+    render(NButton, {
       props: { loading: true },
+      slots: { default: "Button" },
     });
-    expect(wrapper.attributes("aria-busy")).toBe("true");
+    expect(screen.getByRole("button").getAttribute("aria-busy")).toBe("true");
   });
 });

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 
 interface Column<T> {
   key: keyof T
@@ -14,12 +14,18 @@ interface Props {
   striped?: boolean
   compact?: boolean
   stickyHeader?: boolean
+  virtualScroll?: boolean
+  rowHeight?: number
+  visibleRows?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   striped: false,
   compact: false,
   stickyHeader: false,
+  virtualScroll: false,
+  rowHeight: 52,
+  visibleRows: 10,
 })
 
 const emit = defineEmits<{
@@ -28,6 +34,8 @@ const emit = defineEmits<{
 
 const sortKey = ref<keyof T | null>(null)
 const sortOrder = ref<'asc' | 'desc'>('asc')
+const scrollTop = ref(0)
+const containerRef = ref<HTMLElement | null>(null)
 
 const sortedData = computed(() => {
   if (!sortKey.value) return props.data
@@ -39,6 +47,22 @@ const sortedData = computed(() => {
   })
 })
 
+// Virtual scroll calculations
+const totalHeight = computed(() => sortedData.value.length * props.rowHeight)
+const startIndex = computed(() => Math.floor(scrollTop.value / props.rowHeight))
+const endIndex = computed(() => Math.min(startIndex.value + props.visibleRows + 2, sortedData.value.length))
+const offsetY = computed(() => startIndex.value * props.rowHeight)
+
+const visibleData = computed(() => {
+  if (!props.virtualScroll) return sortedData.value
+  return sortedData.value.slice(startIndex.value, endIndex.value)
+})
+
+const actualIndices = computed(() => {
+  if (!props.virtualScroll) return sortedData.value.map((_, i) => i)
+  return Array.from({ length: endIndex.value - startIndex.value }, (_, i) => startIndex.value + i)
+})
+
 function toggleSort(key: keyof T) {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -47,12 +71,34 @@ function toggleSort(key: keyof T) {
     sortOrder.value = 'asc'
   }
 }
+
+function handleScroll(e: Event) {
+  const target = e.target as HTMLElement
+  scrollTop.value = target.scrollTop
+}
+
+onMounted(() => {
+  if (props.virtualScroll && containerRef.value) {
+    containerRef.value.addEventListener('scroll', handleScroll)
+  }
+})
+
+onUnmounted(() => {
+  if (containerRef.value) {
+    containerRef.value.removeEventListener('scroll', handleScroll)
+  }
+})
 </script>
 
 <template>
-  <div class="overflow-auto rounded-xl bg-white ring-1 ring-surface-200/80">
-    <table class="w-full text-sm">
-      <thead :class="['text-surface-500 text-xs uppercase tracking-wider', stickyHeader && 'sticky top-0 bg-white']">
+  <div 
+    ref="containerRef"
+    class="rounded-xl bg-white ring-1 ring-surface-200/80"
+    :class="virtualScroll ? 'overflow-auto' : 'overflow-auto'"
+    :style="virtualScroll ? { maxHeight: `${visibleRows * rowHeight + 44}px` } : {}"
+  >
+    <table class="w-full text-sm" :style="virtualScroll ? { minWidth: '100%' } : {}">
+      <thead :class="['text-surface-500 text-xs uppercase tracking-wider bg-white', stickyHeader && 'sticky top-0 z-10']">
         <tr>
           <th
             v-for="col in columns"
@@ -75,20 +121,29 @@ function toggleSort(key: keyof T) {
         </tr>
       </thead>
       <tbody class="divide-y divide-surface-100">
+        <!-- Virtual scroll spacer -->
+        <tr v-if="virtualScroll && offsetY > 0" :style="{ height: `${offsetY}px` }">
+          <td :colspan="columns.length"></td>
+        </tr>
         <tr
-          v-for="(row, index) in sortedData"
-          :key="index"
+          v-for="(row, idx) in visibleData"
+          :key="actualIndices[idx]"
           :class="[
             'hover:bg-surface-50/50 nexa-transition cursor-pointer',
-            striped && index % 2 === 1 && 'bg-surface-50/30',
+            striped && actualIndices[idx] % 2 === 1 && 'bg-surface-50/30',
           ]"
-          @click="emit('rowClick', row, index)"
+          :style="virtualScroll ? { height: `${rowHeight}px` } : {}"
+          @click="emit('rowClick', row, actualIndices[idx])"
         >
           <td v-for="col in columns" :key="String(col.key)" :class="[compact ? 'px-3 py-2.5' : 'px-4 py-3.5', 'text-surface-700']">
             <slot :name="`cell-${String(col.key)}`" :value="row[col.key]" :row="row">
               {{ row[col.key] }}
             </slot>
           </td>
+        </tr>
+        <!-- Virtual scroll bottom spacer -->
+        <tr v-if="virtualScroll" :style="{ height: `${totalHeight - offsetY - visibleData.length * rowHeight}px` }">
+          <td :colspan="columns.length"></td>
         </tr>
       </tbody>
     </table>
