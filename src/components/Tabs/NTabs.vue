@@ -26,6 +26,16 @@ const emit = defineEmits<{
   'close': [key: string]
 }>()
 
+// Dev warnings
+if (import.meta.env.DEV) {
+  if (props.tabs.length === 0) {
+    console.warn('[NexaUI/Tabs] tabs array is empty')
+  }
+  if (props.modelValue && !props.tabs.find(t => t.key === props.modelValue)) {
+    console.warn(`[NexaUI/Tabs] modelValue "${props.modelValue}" does not match any tab key`)
+  }
+}
+
 const activeKey = ref(props.modelValue || props.tabs[0]?.key)
 const tabListRef = ref<HTMLElement | null>(null)
 const indicatorStyle = ref<Record<string, string>>({})

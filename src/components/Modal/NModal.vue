@@ -40,6 +40,16 @@ const dragOffset = ref({ x: 0, y: 0 })
 const modalPosition = ref({ x: 0, y: 0 })
 const modalRef = ref<HTMLElement | null>(null)
 
+// Dev warnings
+if (import.meta.env.DEV) {
+  if (props.draggable && !props.title) {
+    console.warn('[NexaUI/Modal] draggable requires a title (drag handle is on the title bar)')
+  }
+  if (!['fade', 'slide', 'scale'].includes(props.animation)) {
+    console.warn(`[NexaUI/Modal] invalid animation "${props.animation}", expected "fade" | "slide" | "scale"`)
+  }
+}
+
 // Dynamic motion config based on animation prop
 const motionInitial = computed(() => {
   switch (props.animation) {

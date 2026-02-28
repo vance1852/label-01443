@@ -60,4 +60,40 @@ describe("NModal", async () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog.getAttribute("aria-modal")).toBe("true");
   });
+
+  it("closes on ESC key when closable", async () => {
+    const { emitted } = render(NModal, {
+      props: { modelValue: true, title: "ESC Test", closable: true },
+    });
+    await fireEvent.keyDown(document, { key: "Escape" });
+    expect(emitted()["update:modelValue"]).toBeTruthy();
+    expect(emitted()["update:modelValue"][0]).toEqual([false]);
+  });
+
+  it("does not close on ESC when closable is false", async () => {
+    const { emitted } = render(NModal, {
+      props: { modelValue: true, title: "No ESC", closable: false },
+    });
+    await fireEvent.keyDown(document, { key: "Escape" });
+    expect(emitted()["update:modelValue"]).toBeFalsy();
+  });
+
+  it("accepts animation prop without error", () => {
+    const animations = ["fade", "slide", "scale"] as const;
+    for (const animation of animations) {
+      const { unmount } = render(NModal, {
+        props: { modelValue: true, animation },
+        slots: { default: "Content" },
+      });
+      expect(screen.getByRole("dialog")).toBeTruthy();
+      unmount();
+    }
+  });
+
+  it("does not show close button when closable is false", () => {
+    render(NModal, {
+      props: { modelValue: true, title: "No Close", closable: false },
+    });
+    expect(screen.queryByLabelText("Close modal")).toBeNull();
+  });
 });

@@ -84,4 +84,79 @@ describe("NTable", () => {
     // Virtual scroll container should exist
     expect(container.querySelector(".overflow-auto")).toBeTruthy();
   });
+
+  it("renders filter inputs for filterable columns", () => {
+    const filterColumns = [
+      { key: "name" as const, label: "Name", filterable: true },
+      { key: "email" as const, label: "Email" },
+    ];
+    const { container } = render(NTable, {
+      props: { columns: filterColumns, data },
+    });
+    const filterInputs = container.querySelectorAll('input[placeholder="筛选..."]');
+    expect(filterInputs.length).toBe(1);
+  });
+
+  it("filters data when filter input is used", async () => {
+    const filterColumns = [
+      { key: "name" as const, label: "Name", filterable: true },
+      { key: "email" as const, label: "Email" },
+    ];
+    const { container } = render(NTable, {
+      props: { columns: filterColumns, data },
+    });
+    const filterInput = container.querySelector('input[placeholder="筛选..."]') as HTMLInputElement;
+    await fireEvent.update(filterInput, "Jane");
+    // Only Jane should be visible
+    expect(screen.getByText("Jane")).toBeTruthy();
+    expect(screen.queryByText("John")).toBeNull();
+  });
+
+  it("renders pagination when pageSize is set", () => {
+    const manyData = Array.from({ length: 20 }, (_, i) => ({
+      name: `User ${i}`,
+      email: `user${i}@example.com`,
+    }));
+    render(NTable, {
+      props: { columns, data: manyData, pageSize: 5 },
+    });
+    // Should show pagination info
+    expect(screen.getByText(/共 20 条/)).toBeTruthy();
+  });
+
+  it("navigates pages when pagination button is clicked", async () => {
+    const manyData = Array.from({ length: 10 }, (_, i) => ({
+      name: `User ${i}`,
+      email: `user${i}@example.com`,
+    }));
+    const { emitted } = render(NTable, {
+      props: { columns, data: manyData, pageSize: 5 },
+    });
+    // Page "2" button should exist
+    const page2Btn = screen.getByText("2");
+    await fireEvent.click(page2Btn);
+    expect(emitted()["update:currentPage"]).toBeTruthy();
+    expect(emitted()["update:currentPage"][0]).toEqual([2]);
+  });
+
+  it("renders column resize handles", () => {
+    const { container } = render(NTable, {
+      props: { columns, data },
+    });
+    const resizeHandles = container.querySelectorAll(".cursor-col-resize");
+    expect(resizeHandles.length).toBe(columns.length);
+  });
+
+  it("shows empty state when no data matches filter", async () => {
+    const filterColumns = [
+      { key: "name" as const, label: "Name", filterable: true },
+      { key: "email" as const, label: "Email" },
+    ];
+    const { container } = render(NTable, {
+      props: { columns: filterColumns, data },
+    });
+    const filterInput = container.querySelector('input[placeholder="筛选..."]') as HTMLInputElement;
+    await fireEvent.update(filterInput, "zzzzz");
+    expect(screen.getByText("暂无数据")).toBeTruthy();
+  });
 });

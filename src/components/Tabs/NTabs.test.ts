@@ -79,4 +79,76 @@ describe("NTabs", () => {
     });
     expect(screen.getByTestId("slot-content").textContent).toBe("tab2");
   });
+
+  it("renders underline indicator element", () => {
+    const { container } = render(NTabs, {
+      props: { tabs },
+    });
+    const indicator = container.querySelector(".absolute.bg-primary-500");
+    expect(indicator).toBeTruthy();
+  });
+
+  it("emits close when closable tab close button is clicked", async () => {
+    const closableTabs = [
+      { key: "tab1", label: "Tab 1", closable: true },
+      { key: "tab2", label: "Tab 2", closable: true },
+    ];
+    const { emitted } = render(NTabs, {
+      props: { tabs: closableTabs },
+    });
+    const closeBtn = screen.getAllByRole("button", { name: /Close/ })[0];
+    await fireEvent.click(closeBtn);
+    expect(emitted().close).toBeTruthy();
+    expect(emitted().close[0]).toEqual(["tab1"]);
+  });
+
+  it("supports global closable prop", async () => {
+    const { emitted } = render(NTabs, {
+      props: { tabs: [{ key: "a", label: "A" }, { key: "b", label: "B" }], closable: true },
+    });
+    const closeBtns = screen.getAllByRole("button", { name: /Close/ });
+    expect(closeBtns.length).toBe(2);
+    await fireEvent.click(closeBtns[1]);
+    expect(emitted().close[0]).toEqual(["b"]);
+  });
+
+  it("navigates tabs with ArrowRight key", async () => {
+    const { emitted } = render(NTabs, {
+      props: { tabs },
+    });
+    const firstTab = screen.getByText("Tab 1");
+    await fireEvent.keyDown(firstTab, { key: "ArrowRight" });
+    expect(emitted()["update:modelValue"]).toBeTruthy();
+    expect(emitted()["update:modelValue"][0]).toEqual(["tab2"]);
+  });
+
+  it("navigates tabs with ArrowLeft key (wraps around)", async () => {
+    const { emitted } = render(NTabs, {
+      props: { tabs },
+    });
+    const firstTab = screen.getByText("Tab 1");
+    await fireEvent.keyDown(firstTab, { key: "ArrowLeft" });
+    // Should wrap to last enabled tab (tab2, since tab3 is disabled)
+    expect(emitted()["update:modelValue"]).toBeTruthy();
+    expect(emitted()["update:modelValue"][0]).toEqual(["tab2"]);
+  });
+
+  it("navigates to first tab with Home key", async () => {
+    const { emitted } = render(NTabs, {
+      props: { tabs, modelValue: "tab2" },
+    });
+    const secondTab = screen.getByText("Tab 2");
+    await fireEvent.keyDown(secondTab, { key: "Home" });
+    expect(emitted()["update:modelValue"][0]).toEqual(["tab1"]);
+  });
+
+  it("navigates to last tab with End key", async () => {
+    const { emitted } = render(NTabs, {
+      props: { tabs },
+    });
+    const firstTab = screen.getByText("Tab 1");
+    await fireEvent.keyDown(firstTab, { key: "End" });
+    // Last enabled tab is tab2 (tab3 is disabled)
+    expect(emitted()["update:modelValue"][0]).toEqual(["tab2"]);
+  });
 });

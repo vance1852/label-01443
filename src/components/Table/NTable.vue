@@ -45,6 +45,16 @@ const scrollTop = ref(0)
 const containerRef = ref<HTMLElement | null>(null)
 const page = ref(props.currentPage)
 
+// Dev warnings
+if (import.meta.env.DEV) {
+  if (props.pageSize > 0 && props.virtualScroll) {
+    console.warn('[NexaUI/Table] pageSize and virtualScroll should not be used together; pagination is disabled when virtualScroll is on')
+  }
+  if (props.columns.length === 0) {
+    console.warn('[NexaUI/Table] columns array is empty, table will not render any data')
+  }
+}
+
 // Filter state: key -> filter string
 const filters = reactive<Record<string, string>>({})
 
