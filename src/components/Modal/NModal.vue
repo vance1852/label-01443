@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onUnmounted } from 'vue'
-import { useMotion } from '@vueuse/motion'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import type { Size } from '@/types'
 
 interface Props {
@@ -40,42 +39,42 @@ const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
 const modalPosition = ref({ x: 0, y: 0 })
 const modalRef = ref<HTMLElement | null>(null)
-const overlayRef = ref<HTMLElement | null>(null)
 
-// Spring animation config
-const springConfig = {
-  type: 'spring' as const,
-  stiffness: 300,
-  damping: 25,
-  mass: 0.8,
-}
-
-// Motion for modal content
-const { apply: applyModalMotion } = useMotion(modalRef, {
-  initial: {
-    opacity: 0,
-    scale: 0.9,
-    y: -20,
-  },
-  enter: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: springConfig,
-  },
-  leave: {
-    opacity: 0,
-    scale: 0.95,
-    y: 10,
-    transition: { duration: 150 },
-  },
+// Dynamic motion config based on animation prop
+const motionInitial = computed(() => {
+  switch (props.animation) {
+    case 'fade':
+      return { opacity: 0 }
+    case 'slide':
+      return { opacity: 0, y: -40 }
+    case 'scale':
+    default:
+      return { opacity: 0, scale: 0.9, y: -20 }
+  }
 })
 
-// Motion for overlay
-const { apply: applyOverlayMotion } = useMotion(overlayRef, {
-  initial: { opacity: 0 },
-  enter: { opacity: 1, transition: { duration: 200 } },
-  leave: { opacity: 0, transition: { duration: 150 } },
+const motionEnter = computed(() => {
+  switch (props.animation) {
+    case 'fade':
+      return { opacity: 1, transition: { duration: 200 } }
+    case 'slide':
+      return { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 25 } }
+    case 'scale':
+    default:
+      return { opacity: 1, scale: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 25, mass: 0.8 } }
+  }
+})
+
+const motionLeave = computed(() => {
+  switch (props.animation) {
+    case 'fade':
+      return { opacity: 0, transition: { duration: 150 } }
+    case 'slide':
+      return { opacity: 0, y: 20, transition: { duration: 150 } }
+    case 'scale':
+    default:
+      return { opacity: 0, scale: 0.95, transition: { duration: 150 } }
+  }
 })
 
 const modalClasses = computed(() => [
@@ -126,6 +125,13 @@ function stopDrag() {
   document.removeEventListener('mouseup', stopDrag)
 }
 
+// ESC key handler
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && props.modelValue && props.closable) {
+    close()
+  }
+}
+
 // Reset position when modal opens
 watch(() => props.modelValue, (val) => {
   if (val) {
@@ -139,9 +145,14 @@ watch(() => props.modelValue, (val) => {
   }
 })
 
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
 onUnmounted(() => {
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -150,7 +161,6 @@ onUnmounted(() => {
     <Transition name="modal-overlay">
       <div
         v-if="modelValue"
-        ref="overlayRef"
         class="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
         @click.self="onOverlayClick"
       >
@@ -159,9 +169,9 @@ onUnmounted(() => {
             v-if="modelValue" 
             ref="modalRef"
             v-motion
-            :initial="{ opacity: 0, scale: 0.9, y: -20 }"
-            :enter="{ opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } }"
-            :leave="{ opacity: 0, scale: 0.95, transition: { duration: 150 } }"
+            :initial="motionInitial"
+            :enter="motionEnter"
+            :leave="motionLeave"
             :class="modalClasses" 
             :style="modalStyle"
             role="dialog" 

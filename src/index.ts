@@ -1,17 +1,31 @@
-import type { App } from "vue";
+import type { App, Component } from "vue";
 
 // Components
-export { NButton } from "./components/Button";
-export { NInput } from "./components/Input";
-export { NCard } from "./components/Card";
-export { NAvatar } from "./components/Avatar";
-export { NTabs } from "./components/Tabs";
-export { NBreadcrumb } from "./components/Breadcrumb";
-export { NToast } from "./components/Toast";
-export { NModal } from "./components/Modal";
-export { NSkeleton } from "./components/Skeleton";
-export { NTable } from "./components/Table";
-export { NBadge } from "./components/Badge";
+import { NButton } from "./components/Button";
+import { NInput } from "./components/Input";
+import { NCard } from "./components/Card";
+import { NAvatar } from "./components/Avatar";
+import { NTabs } from "./components/Tabs";
+import { NBreadcrumb } from "./components/Breadcrumb";
+import { NToast } from "./components/Toast";
+import { NModal } from "./components/Modal";
+import { NSkeleton } from "./components/Skeleton";
+import { NTable } from "./components/Table";
+import { NBadge } from "./components/Badge";
+
+export {
+  NButton,
+  NInput,
+  NCard,
+  NAvatar,
+  NTabs,
+  NBreadcrumb,
+  NToast,
+  NModal,
+  NSkeleton,
+  NTable,
+  NBadge,
+};
 
 // Types
 export * from "./types";
@@ -20,18 +34,18 @@ export * from "./types";
 import "./styles/index.css";
 
 // Plugin
-const components = {
-  NButton: () => import("./components/Button"),
-  NInput: () => import("./components/Input"),
-  NCard: () => import("./components/Card"),
-  NAvatar: () => import("./components/Avatar"),
-  NTabs: () => import("./components/Tabs"),
-  NBreadcrumb: () => import("./components/Breadcrumb"),
-  NToast: () => import("./components/Toast"),
-  NModal: () => import("./components/Modal"),
-  NSkeleton: () => import("./components/Skeleton"),
-  NTable: () => import("./components/Table"),
-  NBadge: () => import("./components/Badge"),
+const components: Record<string, Component> = {
+  NButton,
+  NInput,
+  NCard,
+  NAvatar,
+  NTabs,
+  NBreadcrumb,
+  NToast,
+  NModal,
+  NSkeleton,
+  NTable,
+  NBadge,
 };
 
 export default {

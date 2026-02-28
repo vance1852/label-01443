@@ -65,7 +65,7 @@ describe("NBreadcrumb", () => {
   it("collapses on mobile when collapseOnMobile is true", () => {
     // This test verifies the component has the collapseOnMobile prop
     // Actual mobile behavior requires browser resize which is hard to test
-    const { container } = render(NBreadcrumb, {
+    render(NBreadcrumb, {
       props: { items, collapseOnMobile: true, maxItems: 2 },
     });
     // With maxItems=2 and 4 items, should show ellipsis

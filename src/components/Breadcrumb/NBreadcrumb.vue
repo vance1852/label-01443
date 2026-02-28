@@ -24,7 +24,6 @@ const emit = defineEmits<{
   click: [item: BreadcrumbItem, index: number]
 }>()
 
-const isCollapsed = ref(false)
 const showDropdown = ref(false)
 const isMobile = ref(false)
 
