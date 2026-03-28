@@ -26,7 +26,7 @@
 | 检出代码 | 从仓库拉取最新代码 | - |
 | 安装 Node.js | 配置 Node.js 20.x 环境 | - |
 | 安装依赖 | 使用 `npm ci` 安装依赖 | `npm ci` |
-| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc -b --noEmit` |
+| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc --noEmit` |
 | 运行测试 | 执行所有测试用例 | `npm run test -- --run` |
 
 ### 目的
@@ -50,7 +50,7 @@
 | 检出代码 | 从仓库拉取 PR 代码 | - |
 | 安装 Node.js | 配置 Node.js 20.x 环境 | - |
 | 安装依赖 | 使用 `npm ci` 安装依赖 | `npm ci` |
-| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc -b --noEmit` |
+| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc --noEmit` |
 | 运行测试 | 执行所有测试用例并生成覆盖率报告 | `npm run test:coverage -- --run` |
 | 上传报告 | 将覆盖率报告作为构建产物上传 | - |
 
@@ -78,7 +78,7 @@
 | 检出代码 | 从仓库拉取代码 | - |
 | 安装 Node.js | 配置 Node.js 20.x 环境，配置 npm 源 | - |
 | 安装依赖 | 使用 `npm ci` 安装依赖 | `npm ci` |
-| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc -b --noEmit` |
+| 类型检查 | 运行 TypeScript 类型检查 | `npx vue-tsc --noEmit` |
 | 运行测试 | 执行所有测试用例 | `npm run test -- --run` |
 | 构建库 | 构建组件库生产版本 | `npm run build:lib` |
 | 发布到 npm | 将组件库发布到 npm 官方仓库 | `npm publish` |

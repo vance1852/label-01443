@@ -3,7 +3,7 @@ name: Release and Publish
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   release:
@@ -23,15 +23,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run TypeScript type check
-        run: npx vue-tsc -b --noEmit
+        run: npx vue-tsc --noEmit
 
       - name: Run tests
         run: npm run test -- --run
